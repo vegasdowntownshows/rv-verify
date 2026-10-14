@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RV VERIFY | Secure Server Gate</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="background-glow"></div>
+  <div class="grid-overlay"></div>
+
+  <main class="verify-container">
+    <div class="card">
+      <!-- Header -->
+      <div class="card-header">
+        <div class="logo-shield">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+        <h1 class="brand-title">RV <span>VERIFY</span></h1>
+        <p class="brand-subtitle">High-Security Anti-Alt & Integrity Gate</p>
+      </div>
+
+      <!-- User Profile (If authenticated) -->
+      <div id="user-section" class="user-badge" style="display: none;">
+        <img id="user-avatar" src="" alt="Discord Avatar" class="avatar">
+        <div class="user-meta">
+          <span id="user-tag" class="tag">Loading...</span>
+          <span id="account-age" class="age-badge">Account: Verified</span>
+        </div>
+      </div>
+
+      <!-- Status Display -->
+      <div id="status-card" class="status-card">
+        <div class="pulse-loader" id="loader">
+          <div class="ring"></div>
+          <div class="ring"></div>
+          <div class="dot"></div>
+        </div>
+
+        <h2 id="status-title" class="status-title">Initializing Verification Engine...</h2>
+        <p id="status-desc" class="status-desc">Generating hardware signature and validating session tokens.</p>
+
+        <!-- Progress Steps -->
+        <div class="steps-list" id="steps-list">
+          <div class="step-item" id="step-fp">
+            <span class="step-icon">○</span>
+            <span class="step-text">Hardware Fingerprint Signature</span>
+          </div>
+          <div class="step-item" id="step-vpn">
+            <span class="step-icon">○</span>
+            <span class="step-text">Network & Proxy Inspection</span>
+          </div>
+          <div class="step-item" id="step-alt">
+            <span class="step-icon">○</span>
+            <span class="step-text">Multi-Account & Alt Graph Check</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Container (Success or Denied) -->
+      <div id="result-box" class="result-box" style="display: none;">
+        <div id="result-icon" class="result-icon"></div>
+        <h3 id="result-heading"></h3>
+        <p id="result-message"></p>
+        <div id="result-details" class="result-details" style="display: none;"></div>
+      </div>
+
+      <!-- Action Button Container -->
+      <div class="action-container" id="action-container" style="display: none;">
+        <button id="verify-btn" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Authorize & Verify Device
+        </button>
+      </div>
+
+      <!-- Security Footer -->
+      <div class="card-footer">
+        <div class="security-badge">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M12 8v4M12 16h.01"/>
+          </svg>
+          <span>Protected by RV VERIFY Proprietary Anti-Alt Engine</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/verify.js"></script>
+</body>
+</html>
