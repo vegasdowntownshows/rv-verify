@@ -32,50 +32,69 @@ module.exports = {
     if (interaction.isButton()) {
       const customId = interaction.customId;
 
-      // --- Verify Button Clicked ---
-      if (customId === 'rv_start_verify') {
-        // Check if user is already verified
-        const settings = database.getGuildSettings(interaction.guildId);
-        if (settings && settings.verified_role_id && interaction.member.roles.cache.has(settings.verified_role_id)) {
-          return interaction.reply({
-            content: '✅ You are already verified in this server!',
-            ephemeral: true
+      try {
+        // --- Verify Button Clicked ---
+        if (customId === 'rv_start_verify') {
+          // Immediately acknowledge interaction to prevent Discord timeout
+          await interaction.deferReply({ ephemeral: true });
+
+          // Safe role check whether roles is GuildMemberRoleManager or raw Array
+          const settings = database.getGuildSettings(interaction.guildId);
+          const hasVerifiedRole = settings?.verified_role_id && (
+            interaction.member.roles?.cache
+              ? interaction.member.roles.cache.has(settings.verified_role_id)
+              : Array.isArray(interaction.member.roles)
+              ? interaction.member.roles.includes(settings.verified_role_id)
+              : false
+          );
+
+          if (hasVerifiedRole) {
+            return interaction.editReply({
+              content: '✅ You are already verified in this server!'
+            });
+          }
+
+          // Generate one-time secure session token
+          const sessionToken = crypto.randomBytes(24).toString('hex');
+          database.createSession(sessionToken, interaction.user.id, interaction.guildId, 900); // 15 mins
+
+          const verifyUrl = `${config.server.baseUrl}/verify?token=${sessionToken}`;
+
+          const embed = new EmbedBuilder()
+            .setTitle('🛡️ RV VERIFY | Verification Portal')
+            .setColor(0x00F0FF)
+            .setDescription(
+              `Hello <@${interaction.user.id}>,\n\n` +
+              `Click the button below to open your personalized verification session in your browser.\n\n` +
+              `⚠️ **Anti-Alt Warning:**\n` +
+              `• Do not use VPNs or datacenter proxies.\n` +
+              `• Alternate accounts and bot farms will be permanently flagged.\n` +
+              `• This link is unique to you and will expire in 15 minutes.`
+            )
+            .setFooter({ text: 'RV VERIFY • Secure Anti-Alt Gate' })
+            .setTimestamp();
+
+          const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+              .setLabel('Complete Verification')
+              .setStyle(ButtonStyle.Link)
+              .setURL(verifyUrl)
+              .setEmoji('🔗')
+          );
+
+          return interaction.editReply({
+            embeds: [embed],
+            components: [row]
           });
         }
-
-        // Generate one-time secure session token
-        const sessionToken = crypto.randomBytes(24).toString('hex');
-        database.createSession(sessionToken, interaction.user.id, interaction.guildId, 900); // 15 mins
-
-        const verifyUrl = `${config.server.baseUrl}/verify?token=${sessionToken}`;
-
-        const embed = new EmbedBuilder()
-          .setTitle('🛡️ RV VERIFY | Verification Portal')
-          .setColor(0x00F0FF)
-          .setDescription(
-            `Hello <@${interaction.user.id}>,\n\n` +
-            `Click the button below to open your personalized verification session in your browser.\n\n` +
-            `⚠️ **Anti-Alt Warning:**\n` +
-            `• Do not use VPNs or datacenter proxies.\n` +
-            `• Alternate accounts and bot farms will be permanently flagged.\n` +
-            `• This link is unique to you and will expire in 15 minutes.`
-          )
-          .setFooter({ text: 'RV VERIFY • Secure Anti-Alt Gate' })
-          .setTimestamp();
-
-        const row = new ActionRowBuilder().addComponents(
-          new ButtonBuilder()
-            .setLabel('Complete Verification')
-            .setStyle(ButtonStyle.Link)
-            .setURL(verifyUrl)
-            .setEmoji('🔗')
-        );
-
-        return interaction.reply({
-          embeds: [embed],
-          components: [row],
-          ephemeral: true
-        });
+      } catch (err) {
+        console.error('[Button Error] Failed to handle button interaction:', err);
+        const errorReply = { content: '❌ An error occurred while opening verification. Please try again.', ephemeral: true };
+        if (interaction.deferred || interaction.replied) {
+          return interaction.editReply(errorReply).catch(() => {});
+        } else {
+          return interaction.reply(errorReply).catch(() => {});
+        }
       }
 
       // --- Admin Quick Action: Ban Suspect & All Linked Alts ---
