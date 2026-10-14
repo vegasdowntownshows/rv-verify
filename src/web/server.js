@@ -35,6 +35,18 @@ function createWebServer(discordClient) {
     res.send('PONG');
   });
 
+  // Diagnostic status endpoint to inspect bot connection and recent logs in cloud
+  app.get('/api/debug-status', (req, res) => {
+    res.json({
+      status: 'online',
+      botReady: discordClient.isReady(),
+      botTag: discordClient.user ? discordClient.user.tag : null,
+      guilds: discordClient.guilds.cache.map(g => ({ id: g.id, name: g.name })),
+      baseUrl: config.server.baseUrl,
+      logs: (global.RV_LOGS || []).slice(-30)
+    });
+  });
+
   // In-memory cache for OAuth authenticated users during their session (stateToken -> user)
   const authSessionMap = new Map();
 

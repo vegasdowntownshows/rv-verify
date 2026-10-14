@@ -58,7 +58,13 @@ module.exports = {
           const sessionToken = crypto.randomBytes(24).toString('hex');
           database.createSession(sessionToken, interaction.user.id, interaction.guildId, 900); // 15 mins
 
-          const verifyUrl = `${config.server.baseUrl}/verify?token=${sessionToken}`;
+          let baseUrl = config.server.baseUrl || 'https://rv-verify.onrender.com';
+          if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+            baseUrl = `https://${baseUrl}`;
+          }
+          baseUrl = baseUrl.replace(/\/+$/, '');
+          const verifyUrl = `${baseUrl}/verify?token=${sessionToken}`;
+          console.log(`[Button Click] Generating verify link for ${interaction.user.tag}: ${verifyUrl}`);
 
           const embed = new EmbedBuilder()
             .setTitle('🛡️ RV VERIFY | Verification Portal')

@@ -1,3 +1,20 @@
+// Capture recent logs in memory for debugging
+const logs = [];
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+
+function formatLog(type, args) {
+  const msg = args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+  logs.push(`[${new Date().toISOString().substring(11, 19)}] [${type}] ${msg}`);
+  if (logs.length > 80) logs.shift();
+}
+
+console.log = (...args) => { formatLog('INFO', args); originalLog(...args); };
+console.error = (...args) => { formatLog('ERROR', args); originalError(...args); };
+console.warn = (...args) => { formatLog('WARN', args); originalWarn(...args); };
+global.RV_LOGS = logs;
+
 const config = require('./config');
 const { createDiscordClient } = require('./bot/client');
 const { createWebServer } = require('./web/server');
